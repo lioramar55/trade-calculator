@@ -1,189 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Mini/Micro Trade Risk Calculator</title>
-		<style>
-			body {
-				font-family: Arial, sans-serif;
-				background: #f4f6f8;
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				height: 100vh;
-				margin: 0;
-			}
-			.calculator {
-				background: white;
-				padding: 30px;
-				border-radius: 15px;
-				box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-				width: 360px;
-				max-width: 90%;
-			}
-			h2 {
-				text-align: center;
-				margin-bottom: 20px;
-				color: #333;
-			}
-			.buttons-group {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 10px;
-				margin-bottom: 15px;
-			}
-			.buttons-group button {
-				flex: 1 1 30%;
-				padding: 10px;
-				border-radius: 8px;
-				border: 1px solid #ccc;
-				background: #eef9ff;
-				color: #333;
-				font-weight: bold;
-				cursor: pointer;
-				transition: 0.2s;
-			}
-			.buttons-group button:hover {
-				background: #cce7ff;
-			}
-			.buttons-group button.active {
-				background: #2196f3;
-				color: white;
-				border-color: #1a78c2;
-			}
-			input {
-				width: 100%;
-				padding: 10px;
-				border-radius: 8px;
-				border: 1px solid #ccc;
-				font-size: 16px;
-				box-sizing: border-box;
-				margin-bottom: 15px;
-			}
-			.result {
-				margin-top: 20px;
-				padding: 15px;
-				background: #eef9ff;
-				border-left: 5px solid #2196f3;
-				border-radius: 8px;
-				font-weight: bold;
-				color: #333;
-			}
-		</style>
+		<title>מחשבון סיכון Mini/Micro</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+		<link rel="stylesheet" href="style.css" />
 	</head>
 	<body>
-		<div class="calculator">
-			<h2>Mini/Micro Risk Calculator</h2>
-
-			<label>Pick Asset:</label>
-			<div class="buttons-group" id="assetButtons">
-				<button data-asset="ES">ES</button>
-				<button data-asset="NQ">NQ</button>
-				<button data-asset="YM">YM</button>
-				<button data-asset="GC">GC</button>
-				<button data-asset="CL">CL</button>
+		<div class="card shadow p-4">
+			<div class="d-flex justify-content-between mb-3">
+				<h4 id="title"></h4>
+				<button class="btn btn-sm btn-outline-dark" onclick="toggleLang()" id="langBtn">EN</button>
 			</div>
 
-			<label>Stop Distance (Ticks):</label>
-			<div class="buttons-group" id="tickButtons">
-				<button data-tick="20">20</button>
-				<button data-tick="25">25</button>
-				<button data-tick="30">30</button>
-				<button data-tick="40">40</button>
-				<button data-tick="50">50</button>
-			</div>
-			<input type="number" id="stop" placeholder="Or enter custom ticks" />
+			<label class="fw-bold" id="pickAssetLabel"></label>
+			<div class="btn-group w-100 mb-3" role="group" id="assetButtons"></div>
 
-			<label>Risk Amount ($):</label>
-			<div class="buttons-group" id="riskButtons">
-				<button data-risk="200">$200</button>
-				<button data-risk="300">$300</button>
-				<button data-risk="500">$500</button>
-			</div>
-			<input type="number" id="risk" placeholder="Or enter custom risk" />
+			<label class="fw-bold" id="stopTypeLabel"></label>
+			<div class="btn-group w-100 mb-3" role="group" id="stopTypeButtons"></div>
 
-			<div class="result" id="result">Enter values to calculate.</div>
+			<div class="mb-3">
+				<label class="fw-bold" id="stopDistanceLabel"></label>
+				<div class="btn-group mb-2 w-100" role="group" id="stopQuickButtons"></div>
+				<input type="number" id="stopInput" class="form-control" placeholder="" />
+			</div>
+
+			<div class="mb-3" id="priceBox" style="display: none">
+				<label class="fw-bold" id="priceLabel"></label>
+				<input type="number" id="priceInput" class="form-control" placeholder="" />
+			</div>
+
+			<div class="mb-3">
+				<label class="fw-bold" id="riskAmountLabel"></label>
+				<div class="btn-group mb-2 w-100" role="group" id="riskQuickButtons"></div>
+				<input type="number" id="riskInput" class="form-control" placeholder="" />
+			</div>
+
+			<div class="result-box text-center mt-3" id="result"></div>
 		</div>
 
-		<script>
-			const miniTickValues = { ES: 12.5, NQ: 5, YM: 5, GC: 10, CL: 10 };
-			const microTickValues = { ES: 1.25, NQ: 0.5, YM: 1, GC: 1, CL: 1 };
-
-			let selectedAsset = 'ES';
-
-			function calculateContracts() {
-				const stop = parseFloat(document.getElementById('stop').value);
-				const risk = parseFloat(document.getElementById('risk').value);
-
-				if (!stop || !risk) {
-					document.getElementById('result').innerText = 'Enter valid stop and risk.';
-					return;
-				}
-
-				const miniTick = miniTickValues[selectedAsset];
-				const microTick = microTickValues[selectedAsset];
-
-				const miniContracts = risk / (stop * miniTick);
-				const microContracts = risk / (stop * microTick);
-
-				const miniRounded = Math.floor(miniContracts * 100) / 100;
-				const microRounded = Math.floor(microContracts * 100) / 100;
-
-				document.getElementById('result').innerHTML = `
-        <div>Mini Contracts: ${miniRounded}</div>
-        <div>Micro Contracts: ${microRounded}</div>
-    `;
-			}
-
-			function activateButton(groupId, valueAttr, value) {
-				document.querySelectorAll(`#${groupId} button`).forEach((btn) => {
-					btn.classList.remove('active');
-					if (btn.getAttribute(valueAttr) === value) btn.classList.add('active');
-				});
-			}
-
-			// Asset buttons
-			document.querySelectorAll('#assetButtons button').forEach((btn) => {
-				btn.addEventListener('click', () => {
-					selectedAsset = btn.getAttribute('data-asset');
-					activateButton('assetButtons', 'data-asset', selectedAsset);
-					calculateContracts();
-				});
-			});
-
-			// Tick buttons
-			document.querySelectorAll('#tickButtons button').forEach((btn) => {
-				btn.addEventListener('click', () => {
-					const tick = btn.getAttribute('data-tick');
-					document.getElementById('stop').value = tick;
-					activateButton('tickButtons', 'data-tick', tick);
-					calculateContracts();
-				});
-			});
-
-			// Risk buttons
-			document.querySelectorAll('#riskButtons button').forEach((btn) => {
-				btn.addEventListener('click', () => {
-					const risk = btn.getAttribute('data-risk');
-					document.getElementById('risk').value = risk;
-					activateButton('riskButtons', 'data-risk', risk);
-					calculateContracts();
-				});
-			});
-
-			// Inputs
-			document.getElementById('stop').addEventListener('input', () => {
-				activateButton('tickButtons', 'data-tick', '');
-				calculateContracts();
-			});
-			document.getElementById('risk').addEventListener('input', () => {
-				activateButton('riskButtons', 'data-risk', '');
-				calculateContracts();
-			});
-
-			// Initialize default active asset
-			activateButton('assetButtons', 'data-asset', selectedAsset);
-		</script>
+		<script src="lang.js"></script>
+		<script src="script.js"></script>
 	</body>
 </html>

@@ -1,0 +1,17 @@
+body {
+	background: #f8f9fa;
+	padding: 20px;
+	direction: rtl;
+}
+.card {
+	max-width: 500px;
+	margin: auto;
+	border-radius: 15px;
+}
+.result-box {
+	background: #e9f5ff;
+	padding: 15px;
+	border-radius: 10px;
+	font-weight: bold;
+	white-space: pre-line;
+}
